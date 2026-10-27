@@ -70,6 +70,59 @@ p{margin:6px 0;color:#d4e0fa;font-size:17px;line-height:1.42}
 @media(min-width:700px){.app{border-left:1px solid #ffffff19;border-right:1px solid #ffffff19;box-shadow:0 0 80px #0006}}
 @media(prefers-reduced-motion:reduce){.screen.active,.emblem,.rocket-preview img{animation:none}.flyer{animation:fly 4.1s linear both}}
 </style>
+<style>
+/* Yan's mission: accessible, mobile-first enhancements. Original v1 is preserved. */
+.top{gap:7px}
+.top .right{margin-left:auto}
+.sound-switch{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:12px;border:1px solid #bcd9ff5c;background:#c5ddff1b;color:#fff;font-size:18px;touch-action:manipulation}
+.sound-switch[aria-pressed="true"]{background:#ffe58a2c;border-color:#ffe58a9c}
+.robot-guide{display:flex;align-items:center;justify-content:center;gap:9px;width:min(100%,370px);min-height:57px;margin:1px auto 8px;animation:bot-appear .35s ease both}
+.robot-face{flex:0 0 51px;width:51px;height:51px;border-radius:16px;border:2px solid #a1f4ff;background:linear-gradient(155deg,#83eafa,#5580ee);box-shadow:0 5px 0 #254796,0 10px 16px #0006;font-size:32px;display:grid;place-items:center;padding:0;animation:bot-bob 2.8s ease-in-out infinite;cursor:pointer;touch-action:manipulation}
+.bot-bubble{position:relative;flex:1;max-width:285px;border:1px solid #97dcffab;border-radius:17px;padding:9px 12px;background:#244879;color:#fff;font-weight:800;font-size:13px;line-height:1.24;text-align:left;box-shadow:0 5px 16px #0004}
+.bot-bubble:before{content:"";position:absolute;left:-6px;top:18px;width:10px;height:10px;background:#244879;border-left:1px solid #97dcffab;border-bottom:1px solid #97dcffab;transform:rotate(45deg)}
+.robot-face:focus-visible,.sound-switch:focus-visible,.route-link:focus-visible{outline:3px solid #ffe48b;outline-offset:3px}
+.rocket-preview{isolation:isolate}
+.rocket-preview:after{content:"";position:absolute;z-index:-1;width:52px;height:60px;left:50%;bottom:-22px;transform:translateX(-50%) scale(.2);opacity:0;border-radius:50% 50% 60% 60%;background:linear-gradient(#fff5c3,#ff9d1b 45%,#ff4220 75%,transparent);filter:blur(2px)}
+.rocket-preview.igniting{animation:rocket-rumble .12s infinite alternate}
+.rocket-preview.igniting:after{opacity:1;animation:fire-blast .22s ease-in-out infinite alternate}
+.rocket-preview.igniting:before{content:"☁️ ☁️";position:absolute;z-index:-2;bottom:-39px;left:-23px;right:-23px;white-space:nowrap;font-size:54px;animation:smoke-roll .7s ease-out infinite alternate}
+.launch-count{position:absolute;z-index:4;top:43%;left:50%;transform:translate(-50%,-50%);width:min(82vw,260px);padding:11px 19px;border:2px solid #ffe38a;border-radius:28px;background:#111d47dc;box-shadow:0 0 35px #ffe684b4,0 10px 30px #0009;font-size:clamp(41px,13vw,75px);font-weight:1000;line-height:1.1;color:#ffe889;text-shadow:0 3px 12px #a5580a;pointer-events:none;animation:count-pulse .48s ease both}
+.launch-count[hidden]{display:none}
+.launch-count.go{font-size:clamp(22px,7vw,36px);white-space:nowrap}
+.space-stage{isolation:isolate;box-shadow:inset 0 0 34px #2b4f9b70,0 0 25px #2d65c525}
+.space-stage .cosmic-spark{position:absolute;display:block;z-index:0;width:4px;height:4px;background:#ebf6ff;border-radius:50%;box-shadow:0 0 8px 2px #b6efff;left:var(--sx);top:var(--sy);animation:spark-glimmer var(--sp) ease-in-out infinite alternate;animation-delay:var(--sd);pointer-events:none}
+.space-stage .trail{z-index:1}
+.space-stage .flyer{z-index:2}
+.space-stage .cosmic-halo{position:absolute;z-index:0;left:7%;top:36%;width:90px;height:90px;border:1px solid #90e1ff73;border-radius:50%;box-shadow:0 0 45px #609bfc70;animation:orb-spin 8s linear infinite;pointer-events:none}
+.space-stage .cosmic-halo:after{content:"⭐";position:absolute;top:-12px;left:30px;font-size:23px}
+.planet-medal{font-size:28px;line-height:1.25;margin:0 0 6px;letter-spacing:5px;filter:drop-shadow(0 3px 7px #0006)}
+.route-link{display:block;margin:10px auto 0;width:100%;min-height:50px;padding:13px 12px;border:1px solid #a2ecff99;border-radius:14px;background:#ffffff20;text-decoration:none;color:#fff;font-weight:850;font-size:15px;line-height:1.3;text-align:center}
+.landing-scene{position:fixed;z-index:35;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:env(safe-area-inset-top,16px) 15px env(safe-area-inset-bottom,16px);background:radial-gradient(ellipse at 52% 27%,#426fcb 0%,#1b3a78 34%,#091532 75%);color:#fff;opacity:1;transition:opacity .5s ease;pointer-events:none}
+.landing-scene.leaving{opacity:0}
+.landing-scene .landing-stars{position:absolute;inset:0;opacity:.55;pointer-events:none;background-image:radial-gradient(#fff 1px,transparent 2px),radial-gradient(#bcd6ff 2px,transparent 3px);background-size:59px 68px,117px 145px}
+.landing-caption{position:absolute;top:14%;left:10px;right:10px;font-size:clamp(27px,7vw,40px);font-weight:1000;color:#ffe78d;z-index:4;text-shadow:0 3px 15px #000b;animation:bot-appear .5s ease both}
+.landing-rocket{position:absolute;top:14%;left:50%;width:clamp(145px,47vw,225px);height:clamp(200px,60vw,320px);transform:translate(-50%,-120%) rotate(12deg);z-index:3;animation:rocket-land 2.2s cubic-bezier(.24,.72,.4,1) both}
+.landing-rocket img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 15px 20px #0009)}
+.birthday-planet{position:absolute;bottom:-24vh;left:-18%;width:136%;height:63vh;min-height:335px;border-radius:50% 50% 0 0 / 46% 46% 0 0;background:radial-gradient(ellipse at 36% 9%,#c2ffe8,#7de6b8 22%,#46bfa4 56%,#186a89 100%);box-shadow:0 -8px 60px #9ff5df83,inset -14px -30px 50px #12657a6e;animation:planet-rise 2.1s ease-out both}
+.planet-party{position:absolute;bottom:26%;width:100%;display:flex;justify-content:space-evenly;align-items:end;font-size:clamp(40px,13vw,76px);z-index:2;filter:drop-shadow(0 10px 7px #0004);animation:party-pop 1s 1.3s ease both}
+.planet-party span:nth-child(2){transform:translateY(-14px)}
+.landing-ready{position:absolute;bottom:8%;left:7%;right:7%;z-index:4;font-size:clamp(22px,6vw,30px);font-weight:950;color:#ffe889;text-shadow:0 4px 8px #000a;animation:party-pop .7s 1.6s both}
+@keyframes bot-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bot-bob{50%{transform:translateY(-4px) rotate(4deg)}}
+@keyframes rocket-rumble{from{transform:translateX(-2px) rotate(-1deg)}to{transform:translateX(2px) rotate(1deg)}}
+@keyframes fire-blast{from{transform:translateX(-50%) scale(.85,1.2)}to{transform:translateX(-50%) scale(1.25,1.9)}}
+@keyframes smoke-roll{from{transform:scale(.8);opacity:.4}to{transform:scale(1.2);opacity:.9}}
+@keyframes count-pulse{from{opacity:.2;transform:translate(-50%,-50%) scale(.6)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes spark-glimmer{from{opacity:.2;transform:scale(.5)}to{opacity:1;transform:scale(1.6)}}
+@keyframes orb-spin{to{transform:rotate(360deg)}}
+@keyframes rocket-land{0%{transform:translate(-50%,-130%) rotate(12deg);opacity:.35}20%{opacity:1}75%{transform:translate(-50%,35%) rotate(-3deg)}100%{transform:translate(-50%,30%) rotate(0deg)}}
+@keyframes planet-rise{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes party-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@media(max-width:355px){.top{font-size:10px;gap:4px}.robot-guide{gap:7px}.bot-bubble{font-size:12px;padding:7px 9px}.robot-face{flex-basis:44px;width:44px;height:44px;font-size:29px}.sound-switch{flex-basis:33px;width:33px;height:34px}.launch-count{padding:8px 12px}}
+@media(max-height:650px){.robot-guide{min-height:42px;margin-bottom:1px}.robot-face{flex-basis:42px;width:42px;height:42px;font-size:29px}.bot-bubble{font-size:12px;padding:7px 10px}.emblem{font-size:88px;margin:12px 0}}
+@media(prefers-reduced-motion:reduce){.robot-guide,.robot-face,.launch-count,.rocket-preview.igniting,.rocket-preview.igniting:after,.rocket-preview.igniting:before,.space-stage .cosmic-spark,.space-stage .cosmic-halo,.landing-rocket,.birthday-planet,.planet-party,.landing-ready,.landing-caption{animation:none!important}.landing-rocket{transform:translate(-50%,25%)}.birthday-planet{transform:none}.landing-scene{transition:none}}
+
+</style>
 </head>
 <body>
 <main class="app" id="yan-app">
@@ -164,6 +217,212 @@ starButtons.forEach(function(b){b.addEventListener("click",function(){if(stage!=
 colorButtons.forEach(function(b){b.addEventListener("click",function(){if(stage!==2||locked)return;var right=targets[fuel];if(b.getAttribute("data-color")===right.key){fuel++;byId("fuel-count").textContent="⛽ "+fuel+" / 3";if(fuel===3){locked=true;setTimeout(function(){if(stage===2)show(3)},400)}else updateTarget()}else{b.classList.remove("wrong");void b.offsetWidth;b.classList.add("wrong")}})});
 byId("launch").addEventListener("click",function(){if(stage!==3||locked)return;locked=true;byId("launch").disabled=true;show(4)});
 })();
+</script>
+<script>
+/* Yan's space mission v2. Keeps the original quest as the fallback. */
+(function () {
+  "use strict";
+  function init() {
+    var app = document.getElementById("yan-app");
+    if (!app || document.getElementById("mission-guide")) return;
+    var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
+    if (screens.length !== 6) return;
+    var launch = document.getElementById("launch");
+    var preview = document.querySelector(".rocket-preview");
+    var top = document.querySelector(".top");
+    if (!launch || !preview || !top) return;
+    var timers = [], audio = null, soundOn = false;
+    var countdownRunning = false, passOriginalClick = false, cameFromFlight = false;
+    var activeStage = -1, landingNode = null;
+    var hints = [
+      "Привет! Я робот Бип. Поможешь Яну отправиться на праздник?",
+      "Смотри внимательно: нужно найти три жёлтые звёздочки!",
+      "Отлично! Теперь нажимай на кружки нужного цвета.",
+      "Все готово! Нажми «ПУСК», и мы полетим!"
+    ];
+    function later(fn, ms) { var id = setTimeout(fn, ms); timers.push(id); return id; }
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+    function make(tag, className, label) {
+      var node = document.createElement(tag);
+      if (className) node.className = className;
+      if (label !== undefined) node.textContent = label;
+      return node;
+    }
+    function tone(frequency, duration, type, volume, delay) {
+      if (!soundOn) return;
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        if (!audio) audio = new AC();
+        if (audio.state === "suspended") audio.resume().catch(function () {});
+        var osc = audio.createOscillator(), gain = audio.createGain(), start = audio.currentTime + (delay || 0);
+        osc.type = type || "sine";
+        osc.frequency.setValueAtTime(frequency, start);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(60, frequency * .75), start + duration);
+        gain.gain.setValueAtTime(.0001, start);
+        gain.gain.exponentialRampToValueAtTime(volume || .07, start + .018);
+        gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+        osc.connect(gain); gain.connect(audio.destination);
+        osc.start(start); osc.stop(start + duration + .035);
+      } catch (_) { /* sound is optional */ }
+    }
+    function cheer() { tone(580, .13, "sine", .05); tone(830, .2, "sine", .05, .12); }
+
+    var sound = make("button", "sound-switch", "🔇");
+    sound.id = "sound-switch";
+    sound.type = "button";
+    sound.setAttribute("aria-label", "Включить звуки игры");
+    sound.setAttribute("aria-pressed", "false");
+    sound.addEventListener("click", function () {
+      soundOn = !soundOn;
+      sound.textContent = soundOn ? "🔊" : "🔇";
+      sound.setAttribute("aria-pressed", String(soundOn));
+      sound.setAttribute("aria-label", soundOn ? "Выключить звуки игры" : "Включить звуки игры");
+      if (soundOn) cheer();
+    });
+    top.insertBefore(sound, document.getElementById("stage-title"));
+
+    var guide = make("div", "robot-guide");
+    guide.id = "mission-guide";
+    var bot = make("button", "robot-face", "🤖");
+    bot.type = "button";
+    bot.setAttribute("aria-label", "Подсказка робота Бипа");
+    var bubble = make("div", "bot-bubble", hints[0]);
+    guide.appendChild(bot); guide.appendChild(bubble);
+    bot.addEventListener("click", function () {
+      bubble.textContent = hints[Math.min(Math.max(activeStage, 0), 3)];
+      cheer();
+      bubble.animate && bubble.animate([{transform:"scale(.96)"},{transform:"scale(1)"}], {duration:230});
+    });
+
+    var count = make("div", "launch-count");
+    count.id = "launch-count"; count.hidden = true;
+    count.setAttribute("role", "status");
+    count.setAttribute("aria-live", "polite");
+    preview.appendChild(count);
+
+    var scene = document.querySelector(".space-stage");
+    if (scene) {
+      for (var i = 0; i < 17; i++) {
+        var star = make("span", "cosmic-spark");
+        star.style.setProperty("--sx", (8 + (i * 31) % 84) + "%");
+        star.style.setProperty("--sy", (6 + (i * 43) % 88) + "%");
+        star.style.setProperty("--sp", (1.1 + (i % 5) * .42) + "s");
+        star.style.setProperty("--sd", (-i * .23) + "s");
+        scene.appendChild(star);
+      }
+      scene.appendChild(make("div", "cosmic-halo"));
+    }
+
+    var card = document.querySelector("#screen5 .invitation");
+    if (card) {
+      var medal = make("div", "planet-medal", "🪐 🎂 ✨");
+      medal.setAttribute("aria-hidden", "true");
+      card.insertBefore(medal, card.firstChild);
+      var link = make("a", "route-link", "📍 Показать адрес на карте");
+      link.href = "https://yandex.ru/maps/?text=" + encodeURIComponent("Екатеринбург, улица Героев России, 35");
+      link.target = "_blank"; link.rel = "noopener noreferrer";
+      card.appendChild(link);
+    }
+
+    function removeLanding() {
+      if (landingNode && landingNode.parentNode) landingNode.parentNode.removeChild(landingNode);
+      landingNode = null;
+    }
+    function cleanLaunch() {
+      clearTimers(); countdownRunning = false; passOriginalClick = false;
+      count.hidden = true; count.classList.remove("go");
+      preview.classList.remove("igniting");
+      launch.textContent = "🔥 ПУСК!";
+    }
+    function landOnBirthdayPlanet() {
+      removeLanding();
+      var wrap = make("div", "landing-scene");
+      wrap.id = "birthday-landing";
+      wrap.setAttribute("role", "status");
+      wrap.setAttribute("aria-label", "Ян приземляется на планету Дня рождения");
+      wrap.appendChild(make("div", "landing-stars"));
+      wrap.appendChild(make("div", "landing-caption", "🪐 ПЛАНЕТА ДНЯ РОЖДЕНИЯ!"));
+      var ship = make("div", "landing-rocket");
+      var picture = document.createElement("img");
+      picture.src = "assets/yan-rocket.webp";
+      picture.alt = "";
+      picture.setAttribute("aria-hidden", "true");
+      ship.appendChild(picture); wrap.appendChild(ship);
+      wrap.appendChild(make("div", "birthday-planet"));
+      var party = make("div", "planet-party");
+      ["🎈", "🎂", "🎁", "🎈"].forEach(function (s) { party.appendChild(make("span", "", s)); });
+      wrap.appendChild(party);
+      wrap.appendChild(make("div", "landing-ready", "🎉 ТЕБЯ ЖДУТ НА ПРАЗДНИКЕ!"));
+      app.appendChild(wrap); landingNode = wrap;
+      tone(392, .35, "sine", .05); tone(523, .35, "sine", .05, .24); tone(784, .5, "sine", .06, .48);
+      var duration = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 950 : 2450;
+      later(function () { if (landingNode === wrap) wrap.classList.add("leaving"); }, duration);
+      later(function () { if (landingNode === wrap) removeLanding(); }, duration + 550);
+    }
+
+    launch.addEventListener("click", function (e) {
+      if (passOriginalClick) return; // Lets the original v1 click listener start its flight.
+      e.preventDefault(); e.stopImmediatePropagation();
+      if (countdownRunning || !screens[3].classList.contains("active")) return;
+      countdownRunning = true;
+      launch.textContent = "🚀 ГОТОВИМСЯ...";
+      var n = 3;
+      function display() {
+        count.hidden = false; count.classList.remove("go");
+        count.textContent = String(n);
+        count.style.animation = "none"; void count.offsetWidth; count.style.animation = "";
+        tone(420 + n * 80, .18, "triangle", .06);
+      }
+      display();
+      later(function () { n = 2; display(); }, 750);
+      later(function () { n = 1; display(); }, 1500);
+      later(function () {
+        count.textContent = "ПОЕХАЛИ!"; count.classList.add("go");
+        preview.classList.add("igniting");
+        tone(150, .7, "sawtooth", .055); tone(95, .6, "triangle", .075, .1);
+      }, 2250);
+      later(function () {
+        count.hidden = true; preview.classList.remove("igniting");
+        passOriginalClick = true;
+        launch.click(); // Existing, tested game code controls the real flight and invitation.
+        passOriginalClick = false;
+        countdownRunning = false;
+      }, 2900);
+    }, true);
+
+    function updateFromScreens() {
+      var n = screens.findIndex(function (x) { return x.classList.contains("active"); });
+      if (n < 0 || n === activeStage) return;
+      activeStage = n;
+      if (n >= 0 && n <= 3) {
+        bubble.textContent = hints[n];
+        screens[n].insertBefore(guide, screens[n].firstChild);
+      }
+      if (n === 4) {
+        cameFromFlight = true;
+        tone(220, .55, "sawtooth", .032);
+      }
+      if (n === 5 && cameFromFlight) {
+        cameFromFlight = false;
+        landOnBirthdayPlanet();
+      }
+      if (n === 0) { cleanLaunch(); removeLanding(); cameFromFlight = false; }
+    }
+    var observer = new MutationObserver(updateFromScreens);
+    screens.forEach(function (s) { observer.observe(s, {attributes: true, attributeFilter:["class"]}); });
+    updateFromScreens();
+    document.getElementById("restart").addEventListener("click", function () {
+      cleanLaunch(); removeLanding(); cameFromFlight = false;
+    });
+    document.getElementById("start").addEventListener("click", function () {
+      cleanLaunch(); cameFromFlight = false;
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+
 </script>
 <noscript><p style="padding:16px;color:white;text-align:center">Для игры нужен браузер с JavaScript: откройте сайт в Safari, Chrome или другом браузере.</p></noscript>
 </body>
