@@ -123,6 +123,51 @@ p{margin:6px 0;color:#d4e0fa;font-size:17px;line-height:1.42}
 @media(prefers-reduced-motion:reduce){.robot-guide,.robot-face,.launch-count,.rocket-preview.igniting,.rocket-preview.igniting:after,.rocket-preview.igniting:before,.space-stage .cosmic-spark,.space-stage .cosmic-halo,.landing-rocket,.birthday-planet,.planet-party,.landing-ready,.landing-caption{animation:none!important}.landing-rocket{transform:translate(-50%,25%)}.birthday-planet{transform:none}.landing-scene{transition:none}}
 
 </style>
+<style>
+/* Cosmic guest pass: independent enhancement, original quest remains unchanged. */
+.ticket-open{display:block;width:100%;max-width:420px;min-height:68px;margin:15px auto 10px;border:2px solid #ffdf80;border-radius:19px;background:linear-gradient(122deg,#ffe69a,#ffc660);color:#342149;font-size:clamp(17px,5vw,21px);font-weight:950;box-shadow:0 6px 0 #a47131,0 12px 22px #0005;cursor:pointer;touch-action:manipulation}
+.ticket-open:active{transform:translateY(3px);box-shadow:0 3px 0 #a47131}
+.ticket-modal{box-sizing:border-box;color:#fff;background:#0c1740;border:1px solid #7ecfff;border-radius:23px;padding:12px;width:min(440px,calc(100% - 22px));max-height:calc(100dvh - 24px);max-height:calc(100svh - 24px);overflow-y:auto;overscroll-behavior:contain;box-shadow:0 22px 100px #000c;position:fixed;inset:0;margin:auto}
+.ticket-modal::backdrop{background:rgba(2,6,24,.84);backdrop-filter:blur(8px)}
+.ticket-modal[open]{animation:ticket-pop .23s ease both}
+@keyframes ticket-pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.ticket-modal button{cursor:pointer;touch-action:manipulation;font-family:inherit}
+.ticket-modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 4px 11px;font-size:15px;font-weight:900;color:#d4edff}
+.ticket-close{width:42px;height:42px;display:grid;place-items:center;background:#ffffff20;color:white;border:1px solid #a2dfff55;border-radius:13px;font-size:21px}
+.ticket-pass{position:relative;isolation:isolate;overflow:hidden;border:2px solid #ffe292;border-radius:26px;background:radial-gradient(ellipse at 50% 28%,#446dd8aa,transparent 58%),linear-gradient(170deg,#10255b 5%,#132a6b 52%,#2b1457 100%);box-shadow:inset 0 0 0 5px #ffffff0a,0 9px 28px #0008;padding:15px 12px 17px;text-align:center;max-width:388px;margin:0 auto;color:#fff}
+.ticket-pass:before{content:"";position:absolute;inset:0;background-image:radial-gradient(#e4f8ff 1.2px,transparent 1.8px),radial-gradient(#c9dfff .8px,transparent 1.5px);background-size:73px 92px,47px 60px;background-position:10px 10px,33px 42px;opacity:.34;z-index:-1;pointer-events:none}
+.ticket-code{font-size:10px;letter-spacing:.22em;font-weight:900;color:#bce8ff;margin-top:1px}
+.ticket-pass h3{font-size:clamp(29px,8.2vw,38px);font-weight:1000;margin:7px 0 1px;letter-spacing:.04em;color:#ffe788;line-height:1.02;text-shadow:0 3px 12px #0008}
+.ticket-title-sub{font-size:12px;font-weight:900;letter-spacing:.14em;margin:7px 0 0;color:#d2ecff}
+.ticket-photo{position:relative;display:block;width:100%;height:clamp(174px,27vh,225px);object-fit:contain;margin:1px auto -4px;filter:drop-shadow(0 8px 12px #0006)}
+.ticket-crew{font-size:clamp(18px,5.6vw,25px);font-weight:1000;line-height:1.15;color:#fff;margin:6px 0 8px;overflow-wrap:anywhere}
+.ticket-crew b{color:#ffe788}
+.ticket-perf{position:relative;border-top:2px dashed #b6d5ff94;margin:12px -12px 14px}
+.ticket-perf:before,.ticket-perf:after{content:"";width:17px;height:25px;background:#0c1740;border:2px solid #ffe292;position:absolute;top:-14px;border-radius:50%}
+.ticket-perf:before{left:-12px}.ticket-perf:after{right:-12px}
+.ticket-facts{display:grid;grid-template-columns:1fr 1fr;gap:9px 6px}
+.ticket-fact{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:65px;border:1px solid #bde7ff55;background:#a1bfff14;border-radius:14px;padding:6px 3px}
+.ticket-fact small{font-size:10px;letter-spacing:.10em;color:#acd7ff;font-weight:900}
+.ticket-fact strong{font-size:clamp(14px,4vw,19px);font-weight:950;line-height:1.25;color:#fff}
+.ticket-where{grid-column:1/-1;min-height:96px;padding:9px 7px}
+.ticket-where strong{font-size:clamp(15px,4.4vw,19px)}
+.ticket-foot{font-size:11px;font-weight:800;color:#ffe89e;margin:12px 0 0;letter-spacing:.03em}
+.ticket-settings{display:block;text-align:left;margin:14px 5px 9px}
+.ticket-settings label{display:block;font-size:13px;color:#e0efff;font-weight:850;margin-bottom:6px}
+.ticket-settings input{box-sizing:border-box;display:block;width:100%;border:1px solid #90cfff;border-radius:13px;background:#ffffff;color:#16234b;padding:11px 13px;font-size:17px;min-height:48px;font-family:inherit}
+.ticket-btns{display:grid;gap:9px;margin:10px 5px 4px}
+.ticket-save{border:0;border-radius:15px;padding:13px;font-size:17px;font-weight:950;min-height:54px;background:linear-gradient(130deg,#ffe68a,#ffb951);color:#28234b}
+.ticket-tip{text-align:center;font-size:12px;line-height:1.45;color:#c6dcfa;margin:10px 7px}
+.ticket-result{margin:13px 4px 4px;text-align:center}
+.ticket-result[hidden]{display:none}
+.ticket-result img{display:block;width:100%;max-width:338px;margin:0 auto 10px;border:1px solid #cde7ff;border-radius:12px;background:#0b1c47;box-shadow:0 4px 18px #0007}
+.ticket-result p{font-size:13px;color:#ffe7a7;font-weight:800;line-height:1.4;margin:7px 3px}
+.ticket-download{display:block;width:100%;max-width:338px;min-height:47px;margin:8px auto;text-decoration:none;background:#e0f2ff;color:#183466;border-radius:12px;padding:11px;font-size:15px;font-weight:900;text-align:center}
+.ticket-modal :focus-visible,.ticket-open:focus-visible{outline:3px solid #b7f7ff;outline-offset:3px}
+@media(max-height:650px){.ticket-photo{height:160px}.ticket-pass{padding-top:10px}}
+@media(prefers-reduced-motion:reduce){.ticket-modal[open]{animation:none}}
+
+</style>
 </head>
 <body>
 <main class="app" id="yan-app">
@@ -189,9 +234,37 @@ p{margin:6px 0;color:#d4e0fa;font-size:17px;line-height:1.42}
       </div>
       <div class="end">Очень ждём тебя! 💛</div>
     </div>
+    <button type="button" class="ticket-open" id="ticket-open">🎟️ Получить космический билет!</button>
     <button type="button" class="replay" id="restart">🔁 Пройти игру ещё раз</button>
   </section>
 </main>
+
+<dialog class="ticket-modal" id="ticket-modal" aria-labelledby="ticket-heading">
+  <div class="ticket-modal-head"><span>🎟️ Твой космический пропуск</span><button type="button" class="ticket-close" id="ticket-close" aria-label="Закрыть билет">✕</button></div>
+  <div class="ticket-pass" id="cosmic-pass">
+    <div class="ticket-code">★ МИССИЯ 06.12.2026 ★</div>
+    <h3 id="ticket-heading">КОСМИЧЕСКИЙ БИЛЕТ</h3>
+    <p class="ticket-title-sub">ЭКИПАЖ КАПИТАНА ЯНА</p>
+    <img id="ticket-rocket" class="ticket-photo" src="assets/yan-rocket.webp" loading="eager" alt="Капитан Ян на ракете">
+    <div class="ticket-crew">ДЛЯ ТЕБЯ, <b id="ticket-guest-display">ОСОБЫЙ ГОСТЬ</b>!</div>
+    <div class="ticket-perf" aria-hidden="true"></div>
+    <div class="ticket-facts">
+      <div class="ticket-fact"><small>ДАТА</small><strong>6 ДЕКАБРЯ</strong><small>ВОСКРЕСЕНЬЕ</small></div>
+      <div class="ticket-fact"><small>ВРЕМЯ СТАРТА</small><strong>10:00 — 13:00</strong></div>
+      <div class="ticket-fact ticket-where"><small>ПЛАНЕТА ПРАЗДНИКА</small><strong>Екатеринбург<br>Героев России, 35</strong><small>СТУДИЯ «ЛАПКИ&amp;LAPKI»</small></div>
+    </div>
+    <p class="ticket-foot">🚀 ПОСАДКА РАЗРЕШЕНА — ЯНУ 4 ГОДА!</p>
+  </div>
+  <div class="ticket-settings"><label for="ticket-guest">Имя гостя (необязательно):</label><input type="text" maxlength="22" id="ticket-guest" placeholder="Например, Миша" autocomplete="off"></div>
+  <div class="ticket-btns"><button type="button" class="ticket-save" id="ticket-save">📸 Получить картинку билета</button></div>
+  <p class="ticket-tip">Билет можно сохранить в Фото и показать на празднике.</p>
+  <div class="ticket-result" id="ticket-result" hidden>
+    <p>Готово! 📱 На iPhone удерживай картинку пальцем и выбери «Сохранить в Фото».</p>
+    <img id="ticket-result-image" alt="Готовый космический билет на день рождения Яна">
+    <a id="ticket-download" class="ticket-download" download="yan-space-ticket.png">⬇️ Скачать PNG</a>
+  </div>
+</dialog>
+
 <script>
 (function(){
 "use strict";
@@ -425,5 +498,110 @@ byId("launch").addEventListener("click",function(){if(stage!==3||locked)return;l
 
 </script>
 <noscript><p style="padding:16px;color:white;text-align:center">Для игры нужен браузер с JavaScript: откройте сайт в Safari, Chrome или другом браузере.</p></noscript>
+<script>
+(function(){
+'use strict';
+var trigger=document.getElementById('ticket-open');
+var modal=document.getElementById('ticket-modal');
+if(!trigger||!modal)return;
+var close=document.getElementById('ticket-close');
+var nameInput=document.getElementById('ticket-guest');
+var nameDisplay=document.getElementById('ticket-guest-display');
+var result=document.getElementById('ticket-result');
+var imageResult=document.getElementById('ticket-result-image');
+var download=document.getElementById('ticket-download');
+var saveButton=document.getElementById('ticket-save');
+var rocket=document.getElementById('ticket-rocket');
+var busy=false;
+function guestName(){
+ var value=(nameInput.value||'').replace(/\s+/g,' ').trim().slice(0,22);
+ return value?value.toLocaleUpperCase('ru-RU'):'ОСОБЫЙ ГОСТЬ';
+}
+function updateGuest(){
+ nameDisplay.textContent=guestName();
+ result.hidden=true;
+ download.removeAttribute('href');
+}
+nameInput.addEventListener('input',updateGuest);
+trigger.addEventListener('click',function(){
+ updateGuest();
+ if(typeof modal.showModal==='function')modal.showModal();
+ else modal.setAttribute('open','');
+});
+function closeModal(){
+ if(typeof modal.close==='function')modal.close();
+ else modal.removeAttribute('open');
+}
+close.addEventListener('click',closeModal);
+modal.addEventListener('click',function(ev){if(ev.target===modal)closeModal()});
+function rrect(ctx,x,y,w,h,r){
+ r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function center(ctx,txt,y,size,color,maxWidth,weight){
+ var fontSize=size;ctx.textAlign='center';ctx.textBaseline='alphabetic';
+ while(fontSize>=18){ctx.font=(weight||'900')+' '+fontSize+'px system-ui,-apple-system,sans-serif';if(ctx.measureText(txt).width<=maxWidth)break;fontSize-=2}
+ ctx.fillStyle=color;ctx.fillText(txt,540,y);
+}
+function star(ctx,x,y,r){
+ ctx.beginPath();for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5;var n=i%2?r*.41:r;var px=x+Math.cos(a)*n;var py=y+Math.sin(a)*n;if(!i)ctx.moveTo(px,py);else ctx.lineTo(px,py)}ctx.closePath();ctx.fill();
+}
+function createTicket(){
+ var c=document.createElement('canvas');c.width=1080;c.height=1680;
+ var ctx=c.getContext('2d');if(!ctx)throw Error('Canvas не поддерживается');
+ var bg=ctx.createLinearGradient(0,0,1080,1680);bg.addColorStop(0,'#0b1b48');bg.addColorStop(.53,'#1b3b84');bg.addColorStop(1,'#2f174d');ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1680);
+ var glow=ctx.createRadialGradient(540,650,40,540,650,710);glow.addColorStop(0,'#6c83ee80');glow.addColorStop(1,'#6c83ee00');ctx.fillStyle=glow;ctx.fillRect(0,0,1080,1450);
+ ctx.fillStyle='#cce9ff';for(var i=0;i<96;i++){var x=(i*173+57)%1020+30;var y=(i*239+91)%1400+40;var rad=i%9===0?4:1.7;ctx.beginPath();ctx.arc(x,y,rad,0,Math.PI*2);ctx.fill()}
+ ctx.strokeStyle='#ffe5a5';ctx.lineWidth=8;rrect(ctx,34,34,1012,1612,55);ctx.stroke();
+ ctx.fillStyle='#98e9ff';center(ctx,'✦  МИССИЯ: ДЕНЬ РОЖДЕНИЯ  ✦',122,29,'#bce7ff',920,'800');
+ center(ctx,'КОСМИЧЕСКИЙ',207,74,'#ffffff',970,'1000');
+ center(ctx,'БИЛЕТ',318,125,'#ffdc77',960,'1000');
+ center(ctx,'ЭКИПАЖ КАПИТАНА ЯНА',370,28,'#d3e9ff',900,'900');
+ // Draw a glowing birthday planet behind Yan and his already approved artwork.
+ var planet=ctx.createRadialGradient(510,757,60,550,780,360);planet.addColorStop(0,'#a6eaff');planet.addColorStop(.67,'#4ab0d7');planet.addColorStop(1,'#2b5bc2');ctx.beginPath();ctx.arc(540,757,304,0,Math.PI*2);ctx.fillStyle=planet;ctx.fill();
+ ctx.globalAlpha=.26;ctx.strokeStyle='#e8fbff';ctx.lineWidth=24;ctx.beginPath();ctx.ellipse(540,800,370,91,-.36,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
+ ctx.fillStyle='#ffde89';for(var j=0;j<11;j++){star(ctx,105+(j*89)%910,432+(j*181)%515,j%2?11:17)}
+ if(rocket.complete&&rocket.naturalWidth>0){
+  var imw=510,imh=imw*rocket.naturalHeight/rocket.naturalWidth;
+  if(imh>635){imh=635;imw=imh*rocket.naturalWidth/rocket.naturalHeight}
+  ctx.drawImage(rocket,540-imw/2,430+(630-imh)/2,imw,imh);
+ }
+ center(ctx,'ПРОПУСК НА ПРАЗДНИК',1102,39,'#ffdf87',960,'900');
+ ctx.strokeStyle='#c4dfff99';ctx.lineWidth=3;ctx.setLineDash([19,12]);ctx.beginPath();ctx.moveTo(98,1143);ctx.lineTo(982,1143);ctx.stroke();ctx.setLineDash([]);
+ center(ctx,'ПАССАЖИР',1202,27,'#bfe3ff',920,'800');
+ center(ctx,guestName(),1266,61,'#ffffff',910,'1000');
+ center(ctx,'ЯНУ ИСПОЛНЯЕТСЯ 4 ГОДА!',1326,36,'#ffe49b',920,'900');
+ ctx.fillStyle='#ffffff1a';rrect(ctx,96,1361,888,202,28);ctx.fill();
+ center(ctx,'6 ДЕКАБРЯ 2026 · ВОСКРЕСЕНЬЕ',1411,38,'#ffffff',840,'900');
+ center(ctx,'10:00 — 13:00',1471,51,'#ffe49b',840,'1000');
+ center(ctx,'ЕКАТЕРИНБУРГ · ГЕРОЕВ РОССИИ, 35',1522,30,'#ffffff',850,'800');
+ center(ctx,'СТУДИЯ «ЛАПКИ&LAPKI»',1547,28,'#c4e6ff',850,'850');
+ center(ctx,'ПОСАДКА РАЗРЕШЕНА  ·  ЖДЁМ ТЕБЯ!',1617,27,'#ffe6a4',930,'900');
+ return c.toDataURL('image/png');
+}
+saveButton.addEventListener('click',function(){
+ if(busy)return;
+ busy=true;saveButton.disabled=true;saveButton.textContent='⏳ Создаём билет…';
+ function restore(){busy=false;saveButton.disabled=false;saveButton.textContent='📸 Получить картинку билета'}
+ function render(){
+  try{
+   var url=createTicket();
+   imageResult.src=url;
+   download.href=url;
+   download.download='yan-space-ticket.png';
+   result.hidden=false;
+   result.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }catch(err){
+   alert('Не удалось создать картинку. Попробуйте ещё раз или сделайте скриншот билета.');
+  }finally{restore()}
+ }
+ if(rocket.complete&&rocket.naturalWidth>0){render();return}
+ var backup=new Image();
+ backup.onload=function(){rocket=backup;render()};
+ backup.onerror=function(){restore();alert('Изображение ещё не загрузилось. Попробуйте повторить или сохраните скриншот билета.')};
+ backup.src=rocket.currentSrc||rocket.src;
+});
+})();
+
+</script>
 </body>
 </html>
