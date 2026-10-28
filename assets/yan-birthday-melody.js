@@ -1,202 +1,221 @@
-/* Music for Yan's space quest: original looping mission theme and the
-   traditional public-domain "Happy Birthday to You" melody at the finale.
-   All notes are synthesized locally; sound unlocks only on a user tap. */
+/* Yan's birthday game audio v6.
+   Use native HTMLAudioElement (media playback) instead of WebAudio.
+   This makes music audible on iOS with the ring/silent switch enabled.
+   Only start in a user gesture; resume safely after page suspension. */
 (function () {
-  "use strict";
-  function init() {
-    var screen = document.getElementById("screen5");
-    var ticket = document.getElementById("ticket-open");
-    var sound = document.getElementById("sound-switch");
-    var start = document.getElementById("start");
-    var skip = document.getElementById("skip");
-    var restart = document.getElementById("restart");
-    if (!screen || !ticket || !sound || !start || !skip || !restart ||
-        document.getElementById("birthday-music")) return;
+"use strict";
+function init() {
+  var scenes = Array.prototype.slice.call(document.querySelectorAll("#yan-app .screen"));
+  var sound = document.getElementById("sound-switch");
+  var ticket = document.getElementById("ticket-open");
+  var start = document.getElementById("start");
+  var skip = document.getElementById("skip");
+  var restart = document.getElementById("restart");
+  if (!sound || !ticket || !start || !skip || !restart || scenes.length !== 6 ||
+      document.getElementById("birthday-music")) return;
+  try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
 
-    var css = document.createElement("style");
-    css.textContent = ".birthday-music{width:100%;max-width:420px;min-height:62px;margin:16px auto 4px;border:2px solid #98e8ff;border-radius:19px;background:linear-gradient(125deg,#3657ba,#6f48bb);color:#fff;font-size:clamp(16px,4.6vw,20px);font-weight:900;box-shadow:0 6px 0 #202b72,0 11px 19px #0005;touch-action:manipulation;cursor:pointer}.birthday-music:focus-visible{outline:3px solid #ffdc78;outline-offset:3px}.birthday-music:active{transform:translateY(3px);box-shadow:0 3px 0 #202b72}";
-    document.head.appendChild(css);
-    var button = document.createElement("button");
-    button.type = "button";
-    button.id = "birthday-music";
-    button.className = "birthday-music";
-    button.setAttribute("aria-pressed", "false");
-    screen.insertBefore(button, ticket);
+  var style = document.createElement("style");
+  style.textContent =
+    ".birthday-music{width:100%;max-width:420px;min-height:62px;margin:16px auto 4px;border:2px solid #98e8ff;border-radius:19px;background:linear-gradient(125deg,#3657ba,#6f48bb);color:#fff;font-size:clamp(16px,4.6vw,20px);font-weight:900;box-shadow:0 6px 0 #202b72,0 11px 19px #0005;touch-action:manipulation;cursor:pointer}" +
+    ".birthday-music:focus-visible,.music-resume:focus-visible{outline:3px solid #ffdc78;outline-offset:3px}" +
+    ".birthday-music:active{transform:translateY(3px);box-shadow:0 3px 0 #202b72}" +
+    ".music-resume{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:1005;width:min(94vw,390px);min-height:62px;padding:12px;border:2px solid #fff2aa;border-radius:20px;background:#ffdb74;color:#212044;font-size:18px;font-weight:900;box-shadow:0 8px 25px #0009;cursor:pointer}" +
+    ".music-resume[hidden]{display:none!important}";
+  document.head.appendChild(style);
 
-    var context = null, master = null, oscillators = [], timer = null;
-    var mode = "idle", playing = false, userMuted = false, automaticToggle = false;
-    var beat = 60 / 152, birthdayBeat = 60 / 118;
+  var button = document.createElement("button");
+  button.type = "button"; button.className = "birthday-music";
+  button.id = "birthday-music";
+  button.setAttribute("aria-pressed","false");
+  scenes[5].insertBefore(button, ticket);
 
-    // Original, cheerful space melody for the entire quest.
-    var spaceNotes = [
-      [392,.5],[493.88,.5],[587.33,1],[783.99,1],[659.25,1],
-      [587.33,.5],[659.25,.5],[783.99,1],[880,1],[783.99,1],
-      [659.25,1],[587.33,.5],[493.88,.5],[440,1],[587.33,1],
-      [493.88,1],[392,.5],[440,.5],[493.88,1],[587.33,1],
-      [783.99,.5],[739.99,.5],[659.25,1],[587.33,.5],[493.88,.5],[587.33,1],
-      [659.25,.5],[783.99,.5],[880,1],[987.77,.5],[880,.5],[783.99,1],
-      [659.25,1],[587.33,.5],[493.88,.5],[440,.5],[493.88,.5],[587.33,1],
-      [783.99,2],[587.33,1],[783.99,1]
-    ];
-    var spaceChords = [
-      [196,246.94,293.66],[174.61,220,261.63],
-      [164.81,196,246.94],[146.83,185,220],
-      [196,246.94,293.66],[174.61,220,261.63],
-      [164.81,220,261.63],[196,246.94,293.66]
-    ];
+  var resumeButton = document.createElement("button");
+  resumeButton.type = "button";
+  resumeButton.id = "music-resume";
+  resumeButton.className = "music-resume";
+  resumeButton.textContent = "▶ Продолжить музыку";
+  resumeButton.hidden = true;
+  resumeButton.setAttribute("aria-label","Продолжить музыку после возвращения в браузер");
+  document.body.appendChild(resumeButton);
 
-    // Traditional Happy Birthday melody, in C major.
-    var birthdayNotes = [
-      [392,.75],[392,.25],[440,1],[392,1],[523.25,1],[493.88,2],
-      [392,.75],[392,.25],[440,1],[392,1],[587.33,1],[523.25,2],
-      [392,.75],[392,.25],[783.99,1],[659.25,1],[523.25,1],[493.88,1],[440,2],
-      [698.46,.75],[698.46,.25],[659.25,1],[523.25,1],[587.33,1],[523.25,2]
-    ];
-    var birthdayBass = [130.81,196,130.81,174.61,130.81,196,130.81,174.61,130.81,196,130.81,130.81,130.81];
-    function enabled() { return sound.getAttribute("aria-pressed") === "true"; }
-    function finale() { return screen.classList.contains("active"); }
-    function inQuest() {
-      for (var i = 1; i < 5; i++) {
-        var s = document.getElementById("screen" + i);
-        if (s && s.classList.contains("active")) return true;
-      }
-      return false;
-    }
-    function label() {
-      button.textContent = playing && mode === "birthday" ?
-        "⏹ Остановить Happy Birthday" :
-        (enabled() ? "🎂 Сыграть Happy Birthday 🎵" : "🎵 Включить праздничную музыку");
-      button.setAttribute("aria-pressed", String(playing && mode === "birthday"));
-    }
-    function unlock() {
-      try {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return false;
-        if (!context) context = new AC();
-        if (context.state === "suspended") {
-          var resume = context.resume();
-          if (resume && typeof resume.catch === "function") resume.catch(function () {});
-        }
-        return true;
-      } catch (err) { return false; }
-    }
-    function stop() {
-      if (timer !== null) { clearTimeout(timer); timer = null; }
-      if (master && context) {
-        try {
-          master.gain.cancelScheduledValues(context.currentTime);
-          master.gain.setTargetAtTime(.0001, context.currentTime, .012);
-        } catch (err) {}
-      }
-      oscillators.forEach(function (o) {
-        try { o.stop(context.currentTime + .055); } catch (err) {}
-      });
-      oscillators = [];
-      mode = "idle";
-      playing = false;
-      label();
-    }
-    function note(freq, at, len, vol, wave) {
-      if (!Number.isFinite(freq) || !context) return;
-      var osc = context.createOscillator();
-      var gain = context.createGain();
-      var end = at + len;
-      osc.type = wave || "triangle";
-      osc.frequency.setValueAtTime(freq, at);
-      gain.gain.setValueAtTime(.0001, at);
-      gain.gain.linearRampToValueAtTime(vol, at + .012);
-      gain.gain.exponentialRampToValueAtTime(Math.max(.0002, vol * .34), Math.max(at + .04, end - .075));
-      gain.gain.exponentialRampToValueAtTime(.0001, end);
-      osc.connect(gain);
-      gain.connect(master);
-      osc.start(at);
-      osc.stop(end + .012);
-      oscillators.push(osc);
-    }
-    function schedulePhrase(notes, secondsPerBeat, at, isBirthday) {
-      var beats = 0;
-      notes.forEach(function (n) {
-        var seconds = n[1] * secondsPerBeat;
-        var current = at + beats * secondsPerBeat;
-        note(n[0], current, seconds * .91, isBirthday ? .28 : .20, "triangle");
-        note(n[0] * 2, current, seconds * .62, .045, "sine");
-        beats += n[1];
-      });
-      return beats * secondsPerBeat;
-    }
-    function begin(kind) {
-      if (!enabled() || document.hidden || !unlock()) { label(); return; }
-      if (playing && mode === kind) return;
-      stop();
-      master = context.createGain();
-      master.gain.setValueAtTime(kind === "birthday" ? .33 : .20, context.currentTime);
-      master.connect(context.destination);
-      var at = context.currentTime + .065;
-      var length;
-      if (kind === "birthday") {
-        length = schedulePhrase(birthdayNotes, birthdayBeat, at, true);
-        birthdayBass.forEach(function (freq, i) {
-          var when = at + i * 2 * birthdayBeat;
-          if (when < at + length) note(freq, when, 1.5 * birthdayBeat, .075, "sine");
-        });
-      } else {
-        length = schedulePhrase(spaceNotes, beat, at, false);
-        spaceChords.forEach(function (ch, i) {
-          var t = at + i * 4 * beat;
-          if (t < at + length) {
-            note(ch[0], t, beat * .72, .095, "sine");
-            note(ch[1], t + beat, beat * .70, .06, "triangle");
-            note(ch[2], t + beat * 2, beat * .70, .07, "triangle");
-            note(ch[1] * 2, t + beat * 3, beat * .55, .038, "sine");
-          }
-        });
-      }
-      mode = kind; playing = true; label();
-      timer = setTimeout(function () {
-        timer = null; playing = false; mode = "idle"; oscillators = [];
-        if (kind === "quest" && enabled() && !document.hidden && inQuest()) {
-          begin("quest"); // Continuous melody through all quest steps.
-        } else label();  // Happy Birthday ends naturally; button can replay it.
-      }, (length + .13) * 1000);
-    }
-    function synchronize() {
-      if (!enabled() || document.hidden) { stop(); return; }
-      if (finale()) {
-        if (!playing || mode !== "birthday") begin("birthday");
-      } else if (inQuest()) {
-        if (!playing || mode !== "quest") begin("quest");
-      } else stop();
-    }
-    function onEntry() {
-      if (!enabled() && !userMuted) {
-        automaticToggle = true;
-        try { sound.click(); } finally { automaticToggle = false; }
-      }
-      if (enabled()) { unlock(); synchronize(); }
-    }
-    sound.addEventListener("click", function () {
-      if (!automaticToggle) userMuted = !enabled();
-      if (enabled()) { unlock(); synchronize(); }
-      else stop();
-    });
-    start.addEventListener("click", onEntry);
-    skip.addEventListener("click", onEntry);
-    restart.addEventListener("click", stop);
-    button.addEventListener("click", function () {
-      if (playing && mode === "birthday") { stop(); return; }
-      if (!enabled()) {
-        userMuted = false;
-        sound.click();  // In the click gesture, unlock sound on iOS.
-      } else begin("birthday");
-    });
-    var observer = new MutationObserver(function () { synchronize(); });
-    for (var i = 0; i < 6; i++) {
-      var scene = document.getElementById("screen" + i);
-      if (scene) observer.observe(scene, {attributes:true, attributeFilter:["class"]});
-    }
-    document.addEventListener("visibilitychange", function () { if (document.hidden) stop(); });
-    label();
+  function audioTrack(src, repeat, volume) {
+    var el = document.createElement("audio");
+    el.src = src; el.preload = "auto"; el.loop = repeat; el.volume = volume;
+    el.setAttribute("preload","auto");
+    el.setAttribute("playsinline","");
+    el.setAttribute("aria-hidden","true");
+    el.style.display = "none";
+    document.body.appendChild(el);
+    return el;
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
+  var quest = audioTrack("assets/yan-quest-theme.wav?v=6", true, .85);
+  var birthday = audioTrack("assets/yan-happy-birthday.wav?v=6", false, .95);
+  var current = null, kind = null, finished = false, manualMute = false;
+  var automaticToggle = false, resumeNeeded = false, backgroundPaused = false;
+  var requestId = 0;
+
+  function enabled() { return sound.getAttribute("aria-pressed") === "true"; }
+  function visible() { return !document.hidden; }
+  function stage() {
+    for (var i = 0; i < scenes.length; i++) {
+      if (scenes[i].classList.contains("active")) return i;
+    }
+    return -1;
+  }
+  function wanted() {
+    var n = stage();
+    if (n === 5) return "birthday";
+    if (n >= 1 && n <= 4) return "quest";
+    return null;
+  }
+  function updateLabel() {
+    button.textContent = kind === "birthday" && current === birthday && !birthday.paused && !birthday.ended
+      ? "⏹ Остановить Happy Birthday"
+      : enabled() ? "🎂 Сыграть Happy Birthday 🎵" : "🎵 Включить праздничную музыку";
+    button.setAttribute("aria-pressed", String(kind === "birthday" && current === birthday && !birthday.paused));
+  }
+  function setResume(need) {
+    resumeNeeded = !!need;
+    resumeButton.hidden = !resumeNeeded;
+    updateLabel();
+  }
+  function stopTracks() {
+    requestId++;
+    quest.pause(); birthday.pause();
+    current = null; kind = null; finished = false; backgroundPaused = false;
+    setResume(false);
+  }
+  function tryPlay(track) {
+    if (!visible() || !enabled() || current !== track) return;
+    var id = ++requestId;
+    var promise;
+    try { promise = track.play(); }
+    catch (err) { setResume(true); return; }
+    if (promise && typeof promise.then === "function") {
+      promise.then(function () {
+        if (id === requestId && current === track) {
+          backgroundPaused = false;
+          setResume(false);
+        }
+      }, function () {
+        if (id === requestId && current === track && enabled() && visible()) {
+          setResume(true);  // Browser needs a new user gesture.
+        }
+      });
+    } else setResume(false);
+    updateLabel();
+  }
+  function select(mode, reset) {
+    var track = mode === "quest" ? quest : birthday;
+    if (current !== track) {
+      requestId++;
+      if (current) current.pause();
+      current = track;
+      kind = mode;
+      finished = false; backgroundPaused = false;
+      try { track.currentTime = 0; } catch (e) {}
+    } else if (reset) {
+      requestId++; track.pause();
+      finished = false;
+      try { track.currentTime = 0; } catch (e) {}
+    }
+    if (!finished && track.paused) tryPlay(track);
+    updateLabel();
+  }
+  function synchronize() {
+    if (!enabled() || !visible()) {
+      if (!enabled()) stopTracks();
+      return;
+    }
+    var mode = wanted();
+    if (!mode) {
+      if (current) stopTracks();
+      return;
+    }
+    if (mode === "birthday" && current === birthday && finished) {
+      updateLabel();
+      return;
+    }
+    select(mode,false);
+  }
+  function enterQuestOrInvite() {
+    // Directly inside click: iOS allows media playback after a real tap.
+    if (!enabled() && !manualMute) {
+      automaticToggle = true;
+      try { sound.click(); } finally { automaticToggle = false; }
+    }
+    if (enabled()) synchronize();
+  }
+  sound.addEventListener("click", function () {
+    if (!automaticToggle) manualMute = !enabled();
+    if (enabled()) { finished = false; synchronize(); }
+    else stopTracks();
+    updateLabel();
+  });
+  start.addEventListener("click",enterQuestOrInvite);
+  skip.addEventListener("click",enterQuestOrInvite);
+  restart.addEventListener("click",function () {
+    stopTracks();
+    // Do not play until child taps Start again.
+  });
+  button.addEventListener("click",function () {
+    if (kind === "birthday" && current === birthday && !birthday.paused) {
+      birthday.pause(); finished = true; setResume(false); return;
+    }
+    if (!enabled()) {
+      manualMute = false;
+      automaticToggle = true;
+      try { sound.click(); } finally { automaticToggle = false; }
+    }
+    if (enabled()) select("birthday",true);
+  });
+  resumeButton.addEventListener("click",function () {
+    if (!enabled()) {
+      manualMute = false;
+      automaticToggle = true;
+      try { sound.click(); } finally { automaticToggle = false; }
+    }
+    if (enabled()) synchronize();
+  });
+
+  birthday.addEventListener("ended", function () {
+    if (current !== birthday) return;
+    finished = true;
+    setResume(false);
+  });
+  [quest,birthday].forEach(function (track) {
+    track.addEventListener("error",function () {
+      if (current === track && enabled()) setResume(true);
+    });
+  });
+
+  var observer = new MutationObserver(function () { synchronize(); });
+  scenes.forEach(function (s) {
+    observer.observe(s,{attributes:true,attributeFilter:["class"]});
+  });
+  function suspend() {
+    if (!visible() && current && !current.paused && enabled()) {
+      backgroundPaused = true;
+      current.pause();
+    }
+  }
+  function comeBack() {
+    if (!visible() || !enabled()) return;
+    // Some Safari versions restore their media session after the visibility event.
+    synchronize();
+    window.setTimeout(function () { if (visible()) synchronize(); }, 350);
+  }
+  document.addEventListener("visibilitychange",function () {
+    if (!visible()) suspend(); else comeBack();
+  });
+  window.addEventListener("pagehide",function () {
+    if (current && !current.paused) { backgroundPaused = true; current.pause(); }
+  });
+  window.addEventListener("pageshow",comeBack);
+  window.addEventListener("focus",comeBack);
+  updateLabel();
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded",init);
+else init();
 })();
