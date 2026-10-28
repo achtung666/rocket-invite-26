@@ -304,7 +304,7 @@ byId("launch").addEventListener("click",function(){if(stage!==3||locked)return;l
     var preview = document.querySelector(".rocket-preview");
     var top = document.querySelector(".top");
     if (!launch || !preview || !top) return;
-    var timers = [], audio = null, soundOn = false;
+    var timers = [], audio = null, soundOn = true;
     var countdownRunning = false, passOriginalClick = false, cameFromFlight = false;
     var activeStage = -1, landingNode = null;
     var hints = [
@@ -341,11 +341,11 @@ byId("launch").addEventListener("click",function(){if(stage!==3||locked)return;l
     }
     function cheer() { tone(580, .13, "sine", .05); tone(830, .2, "sine", .05, .12); }
 
-    var sound = make("button", "sound-switch", "🔇");
+    var sound = make("button", "sound-switch", "🔊");
     sound.id = "sound-switch";
     sound.type = "button";
-    sound.setAttribute("aria-label", "Включить звуки игры");
-    sound.setAttribute("aria-pressed", "false");
+    sound.setAttribute("aria-label", "Выключить звуки игры");
+    sound.setAttribute("aria-pressed", "true");
     sound.addEventListener("click", function () {
       soundOn = !soundOn;
       sound.textContent = soundOn ? "🔊" : "🔇";
@@ -603,6 +603,6 @@ saveButton.addEventListener('click',function(){
 })();
 
 </script>
-<script src="assets/yan-birthday-melody.js?v=6"></script>
+<script src="assets/yan-birthday-melody.js?v=7"></script>
 </body>
 </html>
